@@ -10,6 +10,7 @@ import {
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import type { EventSourceInit } from 'eventsource';
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import { implementationInfo } from './package-info.js';
 
 export interface WrappedClient {
   connect(): Promise<void>;
@@ -157,10 +158,7 @@ export async function createUpstreamClient(
   const transportOrder = determineTransportOrder(upstreamTarget);
   const createClient = (): Client =>
     new Client(
-      {
-        name: 'tool-filter-mcp',
-        version: '0.2.0',
-      },
+      implementationInfo,
       {
         capabilities: {},
       }
@@ -287,10 +285,7 @@ export async function createStdioUpstreamClient(
   env?: Record<string, string>
 ): Promise<WrappedClient> {
   const client = new Client(
-    {
-      name: 'tool-filter-mcp',
-      version: '0.3.1',
-    },
+    implementationInfo,
     {
       capabilities: {},
     }

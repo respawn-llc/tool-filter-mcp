@@ -4,7 +4,7 @@
 
 MCP proxy server that filters tools from upstream MCP servers via regex-based deny list.
 
-#### Maintained: ✅ Yes (Spring/summer 26)
+#### Maintained: ✅ Yes (Winter 2027)
 
 ## Why use this?
 
