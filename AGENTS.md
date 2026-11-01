@@ -4,7 +4,7 @@
 
 ## Commands and workflow
 
-Run commands from the repository root. This is one npm package with a committed `package-lock.json`, using Node.js >=26.0.0, strict TypeScript, and the official MCP SDK.
+Run commands from the repository root. This is one npm package with a committed `package-lock.json`, using Node.js versions supported by `package.json`, strict TypeScript, and the official MCP SDK.
 
 - Run `npm run build` before testing code changes. Several unit and integration tests spawn `dist/index.js`, so running Vitest alone can exercise stale compiled code.
 - Before opening a PR, run `npm run lint`, `npm run build`, `npm test -- --run`, and `npm run format:check`.

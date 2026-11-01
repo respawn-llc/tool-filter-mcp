@@ -330,7 +330,7 @@ Only applicable with `--upstream-stdio`:
 
 ## Requirements
 
-- Node.js >= 26.0.0
+- Node.js 22.12+, 24.x, or 26+ (use the latest patch release for your major version)
 - Upstream MCP server with:
   - SSE or Streamable HTTP transport (for `--upstream`), OR
   - stdio transport (for `--upstream-stdio`)
