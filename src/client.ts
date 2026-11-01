@@ -106,9 +106,16 @@ export async function createUpstreamClient(
   const fetchWithAllowCapture: typeof fetch = async (input, init) => {
     const response = await baseFetch(input, init);
 
-    if (response && typeof response === 'object' && 'status' in response && response.status === 405) {
+    if (
+      response &&
+      typeof response === 'object' &&
+      'status' in response &&
+      response.status === 405
+    ) {
       const headers =
-        'headers' in response && response.headers && typeof (response.headers as Headers).get === 'function'
+        'headers' in response &&
+        response.headers &&
+        typeof (response.headers as Headers).get === 'function'
           ? (response.headers as Headers)
           : undefined;
       const allowHeader = headers ? headers.get('allow') : null;
@@ -125,9 +132,8 @@ export async function createUpstreamClient(
     fetch: fetchWithAllowCapture,
   };
 
-  const requestInit: RequestInit | undefined = Object.keys(safeHeaders).length > 0
-    ? { headers: safeHeaders }
-    : undefined;
+  const requestInit: RequestInit | undefined =
+    Object.keys(safeHeaders).length > 0 ? { headers: safeHeaders } : undefined;
 
   if (Object.keys(safeHeaders).length > 0) {
     eventSourceInit.headers = safeHeaders;
@@ -157,12 +163,9 @@ export async function createUpstreamClient(
 
   const transportOrder = determineTransportOrder(upstreamTarget);
   const createClient = (): Client =>
-    new Client(
-      implementationInfo,
-      {
-        capabilities: {},
-      }
-    );
+    new Client(implementationInfo, {
+      capabilities: {},
+    });
 
   let client: Client = createClient();
   let activeTransport: SSEClientTransport | StreamableHTTPClientTransport | null = null;
@@ -284,12 +287,9 @@ export async function createStdioUpstreamClient(
   args: string[],
   env?: Record<string, string>
 ): Promise<WrappedClient> {
-  const client = new Client(
-    implementationInfo,
-    {
-      capabilities: {},
-    }
-  );
+  const client = new Client(implementationInfo, {
+    capabilities: {},
+  });
 
   let transport: StdioClientTransport | null = null;
   let connected = false;

@@ -10,6 +10,7 @@ describe('Empty Deny List', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -30,6 +31,7 @@ describe('Empty Deny List', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -51,6 +53,7 @@ describe('Empty Deny List', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -78,6 +81,7 @@ describe('Empty Deny List', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -89,11 +93,6 @@ describe('Empty Deny List', () => {
     await proxy.startup();
 
     const tools = proxy.getCachedTools();
-    expect(tools.map((t) => t.name)).toEqual([
-      'read_file',
-      'write_file',
-      'list_dir',
-      'get_env',
-    ]);
+    expect(tools.map((t) => t.name)).toEqual(['read_file', 'write_file', 'list_dir', 'get_env']);
   });
 });

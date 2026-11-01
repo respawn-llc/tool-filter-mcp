@@ -77,26 +77,20 @@ describe('CLI header support', () => {
     await expect(upstreamClient.connect()).resolves.toBeUndefined();
 
     expect(streamableTransportCtorSpy).toHaveBeenCalledTimes(1);
-    expect(streamableTransportCtorSpy).toHaveBeenCalledWith(
-      new URL('https://example.com/mcp'),
-      {
-        fetch: expect.any(Function),
-        requestInit: { headers },
-      }
-    );
+    expect(streamableTransportCtorSpy).toHaveBeenCalledWith(new URL('https://example.com/mcp'), {
+      fetch: expect.any(Function),
+      requestInit: { headers },
+    });
 
     expect(sseTransportCtorSpy).toHaveBeenCalledTimes(1);
-    expect(sseTransportCtorSpy).toHaveBeenCalledWith(
-      new URL('https://example.com/mcp'),
-      {
-        eventSourceInit: {
-          headers,
-          fetch: expect.any(Function),
-        },
-        requestInit: { headers },
+    expect(sseTransportCtorSpy).toHaveBeenCalledWith(new URL('https://example.com/mcp'), {
+      eventSourceInit: {
+        headers,
         fetch: expect.any(Function),
-      }
-    );
+      },
+      requestInit: { headers },
+      fetch: expect.any(Function),
+    });
 
     expect(clientConnectMock).toHaveBeenCalledTimes(2);
 

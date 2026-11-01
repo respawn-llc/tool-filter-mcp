@@ -4,7 +4,10 @@ export interface ParsedHeader {
 }
 
 export class HeaderParseError extends Error {
-  constructor(message: string, public readonly header: string) {
+  constructor(
+    message: string,
+    public readonly header: string
+  ) {
     super(message);
     this.name = 'HeaderParseError';
   }
@@ -32,27 +35,18 @@ export function parseHeaders(headerStrings: string[]): Record<string, string> {
     const colonIndex = headerStr.indexOf(':');
 
     if (colonIndex === -1) {
-      throw new HeaderParseError(
-        'Header must be in "Name: Value" format',
-        headerStr
-      );
+      throw new HeaderParseError('Header must be in "Name: Value" format', headerStr);
     }
 
     const name = headerStr.slice(0, colonIndex).trim();
     const value = headerStr.slice(colonIndex + 1).trim();
 
     if (!name) {
-      throw new HeaderParseError(
-        'Header name cannot be empty',
-        headerStr
-      );
+      throw new HeaderParseError('Header name cannot be empty', headerStr);
     }
 
     if (!/^[a-zA-Z0-9-_]+$/.test(name)) {
-      throw new HeaderParseError(
-        'Header name contains invalid characters',
-        headerStr
-      );
+      throw new HeaderParseError('Header name contains invalid characters', headerStr);
     }
 
     const nameLower = name.toLowerCase();

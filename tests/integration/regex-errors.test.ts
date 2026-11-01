@@ -11,6 +11,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['^[a-z'],
         timeouts: {
           connection: 30000,
@@ -27,6 +28,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['(abc'],
         timeouts: {
           connection: 30000,
@@ -50,6 +52,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['[unclosed'],
         timeouts: {
           connection: 30000,
@@ -69,6 +72,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['(a+)+'],
         timeouts: {
           connection: 30000,
@@ -85,6 +89,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['(x+)*'],
         timeouts: {
           connection: 30000,
@@ -108,6 +113,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['(a*)*'],
         timeouts: {
           connection: 30000,
@@ -126,6 +132,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['^valid$', '^[invalid', '^also_valid$'],
         timeouts: {
           connection: 30000,
@@ -142,6 +149,7 @@ describe('Regex Error Handling', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['^safe$', '(a+)+', '^also_safe$'],
         timeouts: {
           connection: 30000,

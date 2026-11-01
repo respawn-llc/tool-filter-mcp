@@ -1,6 +1,7 @@
 export type UpstreamMode = 'http' | 'stdio';
 
 export interface BaseProxyConfig {
+  allowPatterns: string[];
   denyPatterns: string[];
   timeouts: {
     connection: number;
@@ -29,8 +30,13 @@ export interface FilteredTool {
   inputSchema: object;
 }
 
-export interface ToolFilterResult {
-  allowed: FilteredTool[];
+export interface FilterPatterns {
+  allowPatterns: string[];
+  denyPatterns: string[];
+}
+
+export interface ToolFilterResult<T extends FilteredTool = FilteredTool> {
+  allowed: T[];
   denied: string[];
   invalidPatterns: string[];
 }

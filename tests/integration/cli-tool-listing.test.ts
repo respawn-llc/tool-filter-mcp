@@ -23,7 +23,15 @@ describe('CLI Tool Listing Integration Tests', () => {
 
       try {
         for (const format of ['table', 'json', 'names']) {
-          process.argv = ['node', 'index.js', '--upstream', 'http://localhost:3000', '--list-tools', '--format', format];
+          process.argv = [
+            'node',
+            'index.js',
+            '--upstream',
+            'http://localhost:3000',
+            '--list-tools',
+            '--format',
+            format,
+          ];
 
           const { parseCLIArgs } = await import('../../src/cli-args.js');
           const args = parseCLIArgs();
@@ -48,11 +56,42 @@ describe('CLI Tool Listing Integration Tests', () => {
       }
     });
 
+    it('should parse allow patterns using the long and short options', async () => {
+      const originalArgv = process.argv;
+
+      try {
+        const { parseCLIArgs } = await import('../../src/cli-args.js');
+
+        for (const option of ['--allow', '-a']) {
+          process.argv = [
+            'node',
+            'index.js',
+            '--upstream',
+            'http://localhost:3000',
+            option,
+            '^read_',
+          ];
+
+          expect(parseCLIArgs().allow).toBe('^read_');
+        }
+      } finally {
+        process.argv = originalArgv;
+      }
+    });
+
     it('should reject invalid format', async () => {
       const originalArgv = process.argv;
 
       try {
-        process.argv = ['node', 'index.js', '--upstream', 'http://localhost:3000', '--list-tools', '--format', 'invalid'];
+        process.argv = [
+          'node',
+          'index.js',
+          '--upstream',
+          'http://localhost:3000',
+          '--list-tools',
+          '--format',
+          'invalid',
+        ];
 
         // Mock console.error and process.exit to capture the error
         const mockExit = vi.fn();
@@ -67,7 +106,9 @@ describe('CLI Tool Listing Integration Tests', () => {
         parseCLIArgs();
 
         expect(mockExit).toHaveBeenCalledWith(1);
-        expect(mockError).toHaveBeenCalledWith('Error: Invalid format "invalid". Must be one of: table, json, names');
+        expect(mockError).toHaveBeenCalledWith(
+          'Error: Invalid format "invalid". Must be one of: table, json, names'
+        );
 
         // Restore
         process.exit = originalExit;
@@ -211,6 +252,7 @@ describe('CLI Tool Listing Integration Tests', () => {
 
       const args = {
         upstream: 'http://localhost:3000',
+        allow: ' read_.*, ,write_.* ',
         deny: 'read_.*,write_.*',
         header: ['Authorization:Bearer token'],
         listTools: true,
@@ -220,8 +262,72 @@ describe('CLI Tool Listing Integration Tests', () => {
       const config = createProxyConfig(args);
 
       expect(config.upstreamUrl).toBe('http://localhost:3000');
+      expect(config.allowPatterns).toEqual(['read_.*', 'write_.*']);
       expect(config.denyPatterns).toEqual(['read_.*', 'write_.*']);
       expect(config.headers).toEqual({ Authorization: 'Bearer token' });
+    });
+
+    it('should normalize allow and deny patterns for stdio config', async () => {
+      const { createProxyConfig } = await import('../../src/config.js');
+
+      const config = createProxyConfig({
+        upstreamStdio: true,
+        allow: ' ^read_.*, , ^list_ ',
+        deny: ' ^secret_.*, , ^admin_ ',
+        positionals: ['node', 'server.js'],
+      });
+
+      expect(config.mode).toBe('stdio');
+      expect(config.allowPatterns).toEqual(['^read_.*', '^list_']);
+      expect(config.denyPatterns).toEqual(['^secret_.*', '^admin_']);
+    });
+
+    it('should preserve escaped commas in allow and deny regexes', async () => {
+      const { createProxyConfig } = await import('../../src/config.js');
+      const { applyFilters } = await import('../../src/filter.js');
+
+      const config = createProxyConfig({
+        upstream: 'http://localhost:3000',
+        allow: String.raw`^[a-z]{1\,3}$, [a\,b], ^\d+\,items$, \\,^next$`,
+        deny: String.raw`^foo\,bar$, ^baz$`,
+        positionals: [],
+      });
+
+      expect(config.allowPatterns).toEqual([
+        '^[a-z]{1,3}$',
+        '[a,b]',
+        String.raw`^\d+,items$`,
+        String.raw`\\`,
+        '^next$',
+      ]);
+      expect(config.denyPatterns).toEqual(['^foo,bar$', '^baz$']);
+
+      const filtered = applyFilters(
+        ['a', 'abc', 'xyzq', 'b', '1,items', '\\', 'next'].map((name) => ({ name })),
+        { allowPatterns: config.allowPatterns, denyPatterns: config.denyPatterns }
+      );
+      expect(filtered.allowed.map((tool) => tool.name)).toEqual([
+        'a',
+        'abc',
+        'b',
+        '1,items',
+        '\\',
+        'next',
+      ]);
+    });
+
+    it('should treat an empty allow string as no allow patterns', async () => {
+      const { createProxyConfig } = await import('../../src/config.js');
+
+      for (const allow of ['', ' , ']) {
+        const config = createProxyConfig({
+          upstream: 'http://localhost:3000',
+          allow,
+          positionals: [],
+        });
+
+        expect(config.allowPatterns).toEqual([]);
+      }
     });
   });
 
@@ -230,7 +336,7 @@ describe('CLI Tool Listing Integration Tests', () => {
       const { formatToolsList } = await import('../../src/utils/tool-list-formatter.js');
 
       const mockTools: Tool[] = [
-        { name: 'test_tool', description: 'Test tool', inputSchema: { type: 'object' } }
+        { name: 'test_tool', description: 'Test tool', inputSchema: { type: 'object' } },
       ];
 
       const result = formatToolsList(mockTools, 'json');

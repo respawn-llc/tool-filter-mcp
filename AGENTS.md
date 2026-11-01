@@ -4,7 +4,7 @@
 
 ## Commands and workflow
 
-Run commands from the repository root. This is one npm package with a committed `package-lock.json`, using Node.js 20+, strict TypeScript, and the official MCP SDK.
+Run commands from the repository root. This is one npm package with a committed `package-lock.json`, using Node.js versions supported by `package.json`, strict TypeScript, and the official MCP SDK.
 
 - Run `npm run build` before testing code changes. Several unit and integration tests spawn `dist/index.js`, so running Vitest alone can exercise stale compiled code.
 - Before opening a PR, run `npm run lint`, `npm run build`, `npm test -- --run`, and `npm run format:check`.
@@ -66,7 +66,7 @@ See [README.md](README.md) for the public CLI options and MCP client configurati
 - Use `.js` extensions in relative TypeScript imports. The package is ESM with Node16 module resolution and an ES2022 target.
 - Follow `.prettierrc`: two spaces, semicolons, single quotes, 100-column width, trailing commas where supported by ES5, and parentheses around arrow parameters.
 - Use kebab-case filenames and PascalCase types/interfaces. Keep types explicit where inference is unclear.
-- Treat `eslint.config.js` as the active ESLint configuration. Production rules prohibit explicit `any` and floating promises, and warn on missing function return types. Tests use a separate, less restrictive rule set.
+- Treat `biome.json` as the active lint configuration. Production rules prohibit explicit `any` and floating promises, and warn on missing function return types. Tests use a separate, less restrictive rule set.
 - Prefix intentionally unused parameters with `_`. Keep source compatible with strict compilation, unused-local/parameter checks, complete return paths, and switch fallthrough checks.
 
 ## Known pitfalls

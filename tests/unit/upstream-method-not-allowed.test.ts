@@ -71,34 +71,37 @@ describe('createUpstreamClient 405 handling', () => {
   it('surfaces Allow header information when upstream responds with 405', async () => {
     const allowHeader = 'POST, OPTIONS';
 
-    const fetchMock = vi.fn(async () =>
-      new Response(null, {
-        status: 405,
-        headers: {
-          Allow: allowHeader,
-        },
-      })
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(null, {
+          status: 405,
+          headers: {
+            Allow: allowHeader,
+          },
+        })
     );
 
     vi.stubGlobal('fetch', fetchMock);
 
-    clientConnectMock.mockImplementation(async (transport: { options?: Record<string, unknown> }) => {
-      if ('terminateSession' in transport) {
-        throw new Error('Error POSTing to endpoint (HTTP 405): Not Allowed');
+    clientConnectMock.mockImplementation(
+      async (transport: { options?: Record<string, unknown> }) => {
+        if ('terminateSession' in transport) {
+          throw new Error('Error POSTing to endpoint (HTTP 405): Not Allowed');
+        }
+
+        const eventSourceInit = transport.options?.eventSourceInit as {
+          fetch?: typeof fetch;
+        };
+
+        if (eventSourceInit?.fetch) {
+          await eventSourceInit.fetch(new URL('https://example.com/mcp'), {});
+        }
+
+        const error = new Error('SSE error: Non-200 status code (405)');
+        (error as { code?: number }).code = 405;
+        throw error;
       }
-
-      const eventSourceInit = transport.options?.eventSourceInit as {
-        fetch?: typeof fetch;
-      };
-
-      if (eventSourceInit?.fetch) {
-        await eventSourceInit.fetch(new URL('https://example.com/mcp'), {});
-      }
-
-      const error = new Error('SSE error: Non-200 status code (405)');
-      (error as { code?: number }).code = 405;
-      throw error;
-    });
+    );
 
     const { createUpstreamClient } = await import('../../src/client.js');
     const upstreamClient = await createUpstreamClient('https://example.com/mcp', {});
@@ -131,23 +134,25 @@ describe('createUpstreamClient 405 handling', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    clientConnectMock.mockImplementation(async (transport: { options?: Record<string, unknown> }) => {
-      if ('terminateSession' in transport) {
-        throw new Error('Error POSTing to endpoint (HTTP 405): Not Allowed');
+    clientConnectMock.mockImplementation(
+      async (transport: { options?: Record<string, unknown> }) => {
+        if ('terminateSession' in transport) {
+          throw new Error('Error POSTing to endpoint (HTTP 405): Not Allowed');
+        }
+
+        const eventSourceInit = transport.options?.eventSourceInit as {
+          fetch?: typeof fetch;
+        };
+
+        if (eventSourceInit?.fetch) {
+          await eventSourceInit.fetch(new URL('https://example.com/mcp'), {});
+        }
+
+        const error = new Error('SSE error: Non-200 status code (405)');
+        (error as { code?: number }).code = 405;
+        throw error;
       }
-
-      const eventSourceInit = transport.options?.eventSourceInit as {
-        fetch?: typeof fetch;
-      };
-
-      if (eventSourceInit?.fetch) {
-        await eventSourceInit.fetch(new URL('https://example.com/mcp'), {});
-      }
-
-      const error = new Error('SSE error: Non-200 status code (405)');
-      (error as { code?: number }).code = 405;
-      throw error;
-    });
+    );
 
     const { createUpstreamClient } = await import('../../src/client.js');
     const upstreamClient = await createUpstreamClient('https://example.com/mcp', {
@@ -172,13 +177,15 @@ describe('createUpstreamClient 405 handling', () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
 
-    clientConnectMock.mockImplementation(async (transport: { options?: Record<string, unknown> }) => {
-      if ('terminateSession' in transport) {
-        return;
-      }
+    clientConnectMock.mockImplementation(
+      async (transport: { options?: Record<string, unknown> }) => {
+        if ('terminateSession' in transport) {
+          return;
+        }
 
-      throw new Error('SSE should not be attempted');
-    });
+        throw new Error('SSE should not be attempted');
+      }
+    );
 
     const { createUpstreamClient } = await import('../../src/client.js');
     const upstreamClient = await createUpstreamClient('https://example.com/mcp', {});

@@ -11,6 +11,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -29,6 +30,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -44,11 +46,35 @@ describe('ProxyOrchestrator', () => {
       expect(tools.map((t) => t.name)).toEqual(['list_dir', 'get_env']);
     });
 
+    it('should cache allow-selected tools and reject deny overlaps', async () => {
+      const mockServer = createMockServer(sampleTools);
+      const config: HttpProxyConfig = {
+        mode: 'http',
+        upstreamUrl: 'http://localhost:3000',
+        allowPatterns: ['^read_', '^write_'],
+        denyPatterns: ['^write_'],
+        timeouts: {
+          connection: 30000,
+          toolList: 10000,
+        },
+      };
+
+      const proxy = new ProxyOrchestrator(config, mockServer as any);
+      await proxy.startup();
+
+      expect(proxy.getCachedTools().map((tool) => tool.name)).toEqual(['read_file']);
+      expect(proxy.isToolAllowed('read_file')).toBe(true);
+      expect(proxy.isToolAllowed('write_file')).toBe(false);
+
+      proxy.shutdown();
+    });
+
     it('should fail startup on connection error', async () => {
       const mockServer = createFailingMockServer();
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:9999',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -66,6 +92,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['^[a-z'],
         timeouts: {
           connection: 30000,
@@ -82,6 +109,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['(a+)+'],
         timeouts: {
           connection: 30000,
@@ -98,6 +126,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*'],
         timeouts: {
           connection: 30000,
@@ -119,6 +148,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_database$'],
         timeouts: {
           connection: 30000,
@@ -139,6 +169,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -161,6 +192,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -179,6 +211,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -198,6 +231,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -217,6 +251,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -235,6 +270,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -253,6 +289,7 @@ describe('ProxyOrchestrator', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
