@@ -89,7 +89,7 @@ npx @respawn-app/tool-filter-mcp \
   -- npx my-mcp-server
 ```
 
-Matching is case-sensitive and can match part of a name. Use `^` and `$` to match a whole name. Blank comma-separated entries are ignored. An omitted or blank allow list leaves tools unrestricted by allow. A nonempty allow list that matches no tools exposes no tools. Invalid regex patterns and patterns rejected by the regex-safety check cause an error in proxy and list modes.
+Matching is case-sensitive and can match part of a name. Use `^` and `$` to match a whole name. Blank comma-separated entries are ignored. An omitted or blank allow list leaves tools unrestricted by allow. A nonempty allow list that matches no tools exposes no tools. Invalid regex patterns and patterns rejected by the regex-safety check cause an error in proxy and list modes. Use `\,` to include a comma inside one pattern. For example, `--allow '^[a-z]{1\,3}$'` matches names of one to three lowercase letters.
 
 ### With Authentication Headers
 

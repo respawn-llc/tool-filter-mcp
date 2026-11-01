@@ -4,12 +4,38 @@ import { parseHeaders } from './utils/header-parser.js';
 import { parseEnvVars } from './utils/env-parser.js';
 
 function parsePatternList(patterns?: string): string[] {
-  return patterns
-    ? patterns
-        .split(',')
-        .map((pattern) => pattern.trim())
-        .filter((pattern) => pattern.length > 0)
-    : [];
+  if (!patterns) {
+    return [];
+  }
+
+  const entries: string[] = [];
+  let entry = '';
+  let backslashes = 0;
+
+  for (const character of patterns) {
+    if (character === '\\') {
+      backslashes++;
+      continue;
+    }
+
+    if (character === ',') {
+      entry += '\\'.repeat(backslashes - (backslashes % 2));
+      if (backslashes % 2 === 1) {
+        entry += ',';
+      } else {
+        entries.push(entry.trim());
+        entry = '';
+      }
+    } else {
+      entry += '\\'.repeat(backslashes) + character;
+    }
+
+    backslashes = 0;
+  }
+
+  entry += '\\'.repeat(backslashes);
+  entries.push(entry.trim());
+  return entries.filter((pattern) => pattern.length > 0);
 }
 
 export function createProxyConfig(args: CLIArgs): ProxyConfig {

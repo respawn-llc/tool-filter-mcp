@@ -282,6 +282,40 @@ describe('CLI Tool Listing Integration Tests', () => {
       expect(config.denyPatterns).toEqual(['^secret_.*', '^admin_']);
     });
 
+    it('should preserve escaped commas in allow and deny regexes', async () => {
+      const { createProxyConfig } = await import('../../src/config.js');
+      const { applyFilters } = await import('../../src/filter.js');
+
+      const config = createProxyConfig({
+        upstream: 'http://localhost:3000',
+        allow: String.raw`^[a-z]{1\,3}$, [a\,b], ^\d+\,items$, \\,^next$`,
+        deny: String.raw`^foo\,bar$, ^baz$`,
+        positionals: [],
+      });
+
+      expect(config.allowPatterns).toEqual([
+        '^[a-z]{1,3}$',
+        '[a,b]',
+        String.raw`^\d+,items$`,
+        String.raw`\\`,
+        '^next$',
+      ]);
+      expect(config.denyPatterns).toEqual(['^foo,bar$', '^baz$']);
+
+      const filtered = applyFilters(
+        ['a', 'abc', 'xyzq', 'b', '1,items', '\\', 'next'].map((name) => ({ name })),
+        { allowPatterns: config.allowPatterns, denyPatterns: config.denyPatterns }
+      );
+      expect(filtered.allowed.map((tool) => tool.name)).toEqual([
+        'a',
+        'abc',
+        'b',
+        '1,items',
+        '\\',
+        'next',
+      ]);
+    });
+
     it('should treat an empty allow string as no allow patterns', async () => {
       const { createProxyConfig } = await import('../../src/config.js');
 
