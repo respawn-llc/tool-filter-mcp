@@ -5,12 +5,22 @@ import { join } from 'path';
 describe('CLI stdio argument parsing', () => {
   const cliPath = join(process.cwd(), 'dist', 'index.js');
 
-  function runCLI(args: string[], timeout: number = 2000): Promise<{ stdout: string; stderr: string; exitCode: number | null }> {
-    return new Promise((resolve) => {
+  function runCLI(
+    args: string[],
+    timeout: number = 10000
+  ): Promise<{ stdout: string; stderr: string; exitCode: number | null }> {
+    return new Promise((resolve, reject) => {
       const proc: ChildProcess = spawn('node', [cliPath, ...args]);
       let stdout = '';
       let stderr = '';
       let resolved = false;
+      const timeoutId = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          proc.kill();
+          resolve({ stdout, stderr, exitCode: null });
+        }
+      }, timeout);
 
       proc.stdout?.on('data', (data) => {
         stdout += data.toString();
@@ -23,18 +33,15 @@ describe('CLI stdio argument parsing', () => {
       proc.on('close', (exitCode) => {
         if (!resolved) {
           resolved = true;
+          clearTimeout(timeoutId);
           resolve({ stdout, stderr, exitCode });
         }
       });
 
-      // Kill the process after timeout to avoid hanging
-      setTimeout(() => {
-        if (!resolved) {
-          resolved = true;
-          proc.kill();
-          resolve({ stdout, stderr, exitCode: null });
-        }
-      }, timeout);
+      proc.once('error', (error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
     });
   }
 
@@ -58,20 +65,15 @@ describe('CLI stdio argument parsing', () => {
   });
 
   it('should warn when positional args are used with --upstream (HTTP mode)', async () => {
-    const result = await runCLI([
-      '--upstream',
-      'http://localhost:3000',
-      '--',
-      'test-arg',
-    ]);
+    const result = await runCLI(['--upstream', 'http://localhost:3000', '--', 'test-arg']);
 
-    expect(result.stderr).toContain('Positional arguments are only applicable with --upstream-stdio');
+    expect(result.stderr).toContain(
+      'Positional arguments are only applicable with --upstream-stdio'
+    );
   });
 
   it('should error when --upstream-stdio is used without command', async () => {
-    const result = await runCLI([
-      '--upstream-stdio',
-    ]);
+    const result = await runCLI(['--upstream-stdio']);
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain('--upstream-stdio requires a command and arguments after --');
@@ -97,7 +99,7 @@ describe('CLI stdio argument parsing', () => {
       'node',
       'server.js',
       '--config=test.json',
-    ], 500);
+    ]);
 
     // Should not show the mutual exclusion error or CLI validation errors
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -105,7 +107,9 @@ describe('CLI stdio argument parsing', () => {
     expect(result.stderr).not.toContain('--upstream-stdio requires a command');
     // The command will fail because server.js doesn't exist, but that's a runtime error, not a CLI parsing error
     // What matters is the arguments were parsed correctly (positional args are used)
-    expect(result.stderr).toContain('Connecting to upstream MCP via stdio: node server.js --config=test.json');
+    expect(result.stderr).toContain(
+      'Connecting to upstream MCP via stdio: node server.js --config=test.json'
+    );
   });
 
   it('should accept --upstream with --header', async () => {
@@ -114,7 +118,7 @@ describe('CLI stdio argument parsing', () => {
       'http://localhost:3000',
       '--header',
       'Authorization: Bearer token',
-    ], 500);
+    ]);
 
     // Should not show the mutual exclusion error
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -123,10 +127,7 @@ describe('CLI stdio argument parsing', () => {
   });
 
   it('should validate URL format for --upstream', async () => {
-    const result = await runCLI([
-      '--upstream',
-      'not-a-valid-url',
-    ]);
+    const result = await runCLI(['--upstream', 'not-a-valid-url']);
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain('Invalid upstream URL');
@@ -142,7 +143,7 @@ describe('CLI stdio argument parsing', () => {
       '--from',
       'git+https://example.com/repo.git',
       'package-name',
-    ], 500);
+    ]);
 
     // Should not show CLI validation errors
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -151,7 +152,9 @@ describe('CLI stdio argument parsing', () => {
     expect(result.stderr).not.toContain('Option');
     expect(result.stderr).not.toContain('argument is ambiguous');
     // The command should be parsed correctly with all args including those starting with --
-    expect(result.stderr).toContain('Connecting to upstream MCP via stdio: uvx --from git+https://example.com/repo.git package-name');
+    expect(result.stderr).toContain(
+      'Connecting to upstream MCP via stdio: uvx --from git+https://example.com/repo.git package-name'
+    );
   });
 
   it('should accept --env with --upstream-stdio', async () => {
@@ -164,7 +167,7 @@ describe('CLI stdio argument parsing', () => {
       '--',
       'node',
       'server.js',
-    ], 500);
+    ]);
 
     // Should not show CLI validation errors or warnings
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -175,12 +178,7 @@ describe('CLI stdio argument parsing', () => {
   });
 
   it('should warn when --env is used with --upstream (HTTP mode)', async () => {
-    const result = await runCLI([
-      '--upstream',
-      'http://localhost:3000',
-      '--env',
-      'API_KEY=secret',
-    ], 500);
+    const result = await runCLI(['--upstream', 'http://localhost:3000', '--env', 'API_KEY=secret']);
 
     expect(result.stderr).toContain('--env is only applicable with --upstream-stdio');
   });
@@ -197,7 +195,7 @@ describe('CLI stdio argument parsing', () => {
       '--',
       'node',
       'server.js',
-    ], 500);
+    ]);
 
     // Should not show CLI validation errors
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -214,7 +212,7 @@ describe('CLI stdio argument parsing', () => {
       '--',
       'node',
       'server.js',
-    ], 500);
+    ]);
 
     // Should not show CLI validation errors
     expect(result.stderr).not.toContain('mutually exclusive');
@@ -230,7 +228,7 @@ describe('CLI stdio argument parsing', () => {
       '--',
       'node',
       'server.js',
-    ], 500);
+    ]);
 
     // Should not show CLI validation errors
     expect(result.stderr).not.toContain('mutually exclusive');

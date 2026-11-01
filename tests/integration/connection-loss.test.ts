@@ -10,6 +10,7 @@ describe('Connection Loss', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -33,6 +34,7 @@ describe('Connection Loss', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -54,6 +56,7 @@ describe('Connection Loss', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,

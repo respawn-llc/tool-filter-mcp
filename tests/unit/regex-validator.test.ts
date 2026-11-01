@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  validateRegexPattern,
-  validateRegexPatterns,
-} from '../../src/utils/regex-validator.js';
+import { validateRegexPattern, validateRegexPatterns } from '../../src/utils/regex-validator.js';
 
 describe('regex-validator', () => {
   describe('validateRegexPattern', () => {
@@ -30,6 +27,7 @@ describe('regex-validator', () => {
       expect(result.valid).toBe(false);
       expect(result.safe).toBe(false);
       expect(result.error).toContain('Invalid regex pattern');
+      expect(result.error).not.toContain('deny list');
     });
 
     it('should reject regex with catastrophic backtracking', () => {

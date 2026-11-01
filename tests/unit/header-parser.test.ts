@@ -12,12 +12,12 @@ describe('header-parser', () => {
       const headers = parseHeaders([
         'Authorization: Bearer token123',
         'X-Custom-Header: value',
-        'Content-Type: application/json'
+        'Content-Type: application/json',
       ]);
       expect(headers).toEqual({
-        'Authorization': 'Bearer token123',
+        Authorization: 'Bearer token123',
         'X-Custom-Header': 'value',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       });
     });
 
@@ -55,7 +55,7 @@ describe('header-parser', () => {
       const headers = parseHeaders([
         'X-Custom-Header: value',
         'X_Custom_Header: value2',
-        'X123: value3'
+        'X123: value3',
       ]);
       expect(headers['X-Custom-Header']).toBe('value');
       expect(headers['X_Custom_Header']).toBe('value2');
@@ -69,13 +69,10 @@ describe('header-parser', () => {
         consoleSpy.calls.push(args.join(' '));
       };
 
-      const headers = parseHeaders([
-        'Authorization: Bearer first',
-        'Authorization: Bearer second'
-      ]);
+      const headers = parseHeaders(['Authorization: Bearer first', 'Authorization: Bearer second']);
 
       expect(headers).toEqual({ Authorization: 'Bearer second' });
-      expect(consoleSpy.calls.some(call => call.includes('Duplicate header'))).toBe(true);
+      expect(consoleSpy.calls.some((call) => call.includes('Duplicate header'))).toBe(true);
 
       console.error = originalError;
     });
@@ -125,9 +122,11 @@ describe('header-parser', () => {
 
       const headers = parseHeaders(['Authorization: Bearer $UNDEFINED_VAR']);
       expect(headers).toEqual({ Authorization: 'Bearer ' });
-      expect(consoleSpy.calls.some(call =>
-        call.includes('UNDEFINED_VAR') && call.includes('not defined')
-      )).toBe(true);
+      expect(
+        consoleSpy.calls.some(
+          (call) => call.includes('UNDEFINED_VAR') && call.includes('not defined')
+        )
+      ).toBe(true);
 
       console.error = originalError;
     });
@@ -140,10 +139,7 @@ describe('header-parser', () => {
     it('should expand variables case-insensitively', () => {
       process.env.api_token = 'lowercase';
       process.env.API_TOKEN = 'uppercase';
-      const headers = parseHeaders([
-        'X-Lower: $api_token',
-        'X-Upper: $API_TOKEN'
-      ]);
+      const headers = parseHeaders(['X-Lower: $api_token', 'X-Upper: $API_TOKEN']);
       expect(headers['X-Lower']).toBe('lowercase');
       expect(headers['X-Upper']).toBe('uppercase');
     });

@@ -8,6 +8,7 @@ import { formatToolsList } from './utils/tool-list-formatter.js';
 import { createUpstreamClient, createStdioUpstreamClient, type WrappedClient } from './client.js';
 import { parseCLIArgs, type CLIArgs } from './cli-args.js';
 import { createProxyConfig } from './config.js';
+import { applyFilters } from './filter.js';
 
 async function listToolsMode(args: CLIArgs): Promise<void> {
   let upstreamClient: WrappedClient | null = null;
@@ -22,27 +23,30 @@ async function listToolsMode(args: CLIArgs): Promise<void> {
     } else {
       const commandDisplay = formatCommandDisplay(config.upstreamCommand, config.upstreamArgs);
       console.error(`Connecting to upstream MCP via stdio: ${commandDisplay}...`);
-      upstreamClient = await createStdioUpstreamClient(config.upstreamCommand, config.upstreamArgs, config.env);
+      upstreamClient = await createStdioUpstreamClient(
+        config.upstreamCommand,
+        config.upstreamArgs,
+        config.env
+      );
     }
-    await upstreamClient.connect()
+    await upstreamClient.connect();
 
     console.error('Fetching tools from upstream...');
 
     const result = await upstreamClient.listTools();
-    let tools = result.tools;
+    const tools = applyFilters(result.tools, {
+      allowPatterns: config.allowPatterns,
+      denyPatterns: config.denyPatterns,
+    }).allowed;
 
-    // Apply filtering if deny patterns are provided
-    if (config.denyPatterns.length > 0) {
-      const patterns = config.denyPatterns.map((pattern) => new RegExp(pattern));
-      tools = tools.filter((tool) => {
-        return !patterns.some((pattern) => pattern.test(tool.name));
-      });
-      console.error(`Applied ${config.denyPatterns.length} filter pattern(s)`);
+    const filterCount = config.allowPatterns.length + config.denyPatterns.length;
+    if (filterCount > 0) {
+      console.error(`Applied ${filterCount} filter pattern(s)`);
     }
 
     // Output to stdout (not stderr) so it can be piped/redirected
     const formatted = formatToolsList(tools, args.format || 'table');
-    // eslint-disable-next-line no-console
+    // biome-ignore lint/suspicious/noConsole: list mode writes formatted output to stdout
     console.log(formatted);
   } catch (error) {
     const errorMessage = formatStartupError(error);
@@ -76,7 +80,11 @@ async function main(): Promise<void> {
     } else {
       const commandDisplay = formatCommandDisplay(config.upstreamCommand, config.upstreamArgs);
       console.error(`Connecting to upstream MCP via stdio: ${commandDisplay}...`);
-      upstreamClient = await createStdioUpstreamClient(config.upstreamCommand, config.upstreamArgs, config.env);
+      upstreamClient = await createStdioUpstreamClient(
+        config.upstreamCommand,
+        config.upstreamArgs,
+        config.env
+      );
     }
 
     const proxy = new ProxyOrchestrator(config, upstreamClient);
@@ -88,9 +96,11 @@ async function main(): Promise<void> {
     }
 
     const filteredTools = proxy.getCachedTools();
-    console.error(
-      `Proxy ready. Filtered ${filteredTools.length} tools from upstream.`
-    );
+    console.error(`Proxy ready. Filtered ${filteredTools.length} tools from upstream.`);
+
+    if (config.allowPatterns.length > 0) {
+      console.error(`Allow patterns: ${config.allowPatterns.join(', ')}`);
+    }
 
     if (config.denyPatterns.length > 0) {
       console.error(`Deny patterns: ${config.denyPatterns.join(', ')}`);

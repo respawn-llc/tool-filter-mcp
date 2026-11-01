@@ -9,15 +9,11 @@ describe('env-parser', () => {
     });
 
     it('should parse multiple environment variables correctly', () => {
-      const envVars = parseEnvVars([
-        'API_KEY=secret123',
-        'DEBUG=true',
-        'PORT=3000'
-      ]);
+      const envVars = parseEnvVars(['API_KEY=secret123', 'DEBUG=true', 'PORT=3000']);
       expect(envVars).toEqual({
-        'API_KEY': 'secret123',
-        'DEBUG': 'true',
-        'PORT': '3000'
+        API_KEY: 'secret123',
+        DEBUG: 'true',
+        PORT: '3000',
       });
     });
 
@@ -28,7 +24,7 @@ describe('env-parser', () => {
 
     it('should allow empty value', () => {
       const envVars = parseEnvVars(['EMPTY_VAR=']);
-      expect(envVars).toEqual({ 'EMPTY_VAR': '' });
+      expect(envVars).toEqual({ EMPTY_VAR: '' });
     });
 
     it('should allow value with multiple equals signs', () => {
@@ -43,9 +39,13 @@ describe('env-parser', () => {
         consoleSpy.calls.push(args.join(' '));
       };
 
-      expect(() => parseEnvVars(['InvalidEntry'])).toThrow('process.exit unexpectedly called with "1"');
-      expect(consoleSpy.calls.some(call => call.includes('Invalid environment variable format'))).toBe(true);
-      expect(consoleSpy.calls.some(call => call.includes('InvalidEntry'))).toBe(true);
+      expect(() => parseEnvVars(['InvalidEntry'])).toThrow(
+        'process.exit unexpectedly called with "1"'
+      );
+      expect(
+        consoleSpy.calls.some((call) => call.includes('Invalid environment variable format'))
+      ).toBe(true);
+      expect(consoleSpy.calls.some((call) => call.includes('InvalidEntry'))).toBe(true);
 
       console.error = originalError;
     });
@@ -60,7 +60,7 @@ describe('env-parser', () => {
       const envVars = parseEnvVars(['=value', 'VALID=value']);
 
       expect(envVars).toEqual({ VALID: 'value' });
-      expect(consoleSpy.calls.some(call => call.includes('Key cannot be empty'))).toBe(true);
+      expect(consoleSpy.calls.some((call) => call.includes('Key cannot be empty'))).toBe(true);
 
       console.error = originalError;
     });
@@ -71,10 +71,7 @@ describe('env-parser', () => {
     });
 
     it('should overwrite duplicate keys with last value', () => {
-      const envVars = parseEnvVars([
-        'API_KEY=first',
-        'API_KEY=second'
-      ]);
+      const envVars = parseEnvVars(['API_KEY=first', 'API_KEY=second']);
       expect(envVars).toEqual({ API_KEY: 'second' });
     });
 
@@ -87,12 +84,12 @@ describe('env-parser', () => {
       const envVars = parseEnvVars([
         'PASSWORD=p@ssw0rd!',
         'PATH=/usr/bin:/usr/local/bin',
-        'JSON={"key":"value"}'
+        'JSON={"key":"value"}',
       ]);
       expect(envVars).toEqual({
-        'PASSWORD': 'p@ssw0rd!',
-        'PATH': '/usr/bin:/usr/local/bin',
-        'JSON': '{"key":"value"}'
+        PASSWORD: 'p@ssw0rd!',
+        PATH: '/usr/bin:/usr/local/bin',
+        JSON: '{"key":"value"}',
       });
     });
 
@@ -104,15 +101,19 @@ describe('env-parser', () => {
       };
 
       // Should process VALID1, then exit on InvalidEntry
-      expect(() => parseEnvVars([
-        'VALID1=value1',
-        'InvalidEntry',
-        'VALID2=value2',
-        '=emptykey',
-        'VALID3=value3'
-      ])).toThrow('process.exit unexpectedly called with "1"');
+      expect(() =>
+        parseEnvVars([
+          'VALID1=value1',
+          'InvalidEntry',
+          'VALID2=value2',
+          '=emptykey',
+          'VALID3=value3',
+        ])
+      ).toThrow('process.exit unexpectedly called with "1"');
 
-      expect(consoleSpy.calls.some(call => call.includes('Invalid environment variable format'))).toBe(true);
+      expect(
+        consoleSpy.calls.some((call) => call.includes('Invalid environment variable format'))
+      ).toBe(true);
 
       console.error = originalError;
     });

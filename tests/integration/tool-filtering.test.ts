@@ -12,6 +12,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -34,6 +35,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -56,6 +58,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*'],
         timeouts: {
           connection: 30000,
@@ -79,6 +82,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -101,6 +105,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -125,6 +130,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -147,6 +153,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -172,6 +179,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: ['.*_file$'],
         timeouts: {
           connection: 30000,
@@ -194,6 +202,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,
@@ -213,6 +222,7 @@ describe('MCPServer - Tool Filtering', () => {
       const config: HttpProxyConfig = {
         mode: 'http',
         upstreamUrl: 'http://localhost:3000',
+        allowPatterns: [],
         denyPatterns: [],
         timeouts: {
           connection: 30000,

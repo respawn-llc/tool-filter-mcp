@@ -1,4 +1,4 @@
-import { FilteredTool, ToolFilterResult } from './types.js';
+import { FilterPatterns, FilteredTool, ToolFilterResult } from './types.js';
 import { validateRegexPatterns } from './utils/regex-validator.js';
 
 export class RegexFilter {
@@ -20,35 +20,30 @@ export class RegexFilter {
   }
 }
 
-export function applyFilters(
-  tools: FilteredTool[],
-  denyPatterns: string[]
-): ToolFilterResult {
-  if (denyPatterns.length === 0) {
-    return {
-      allowed: tools,
-      denied: [],
-      invalidPatterns: [],
-    };
-  }
-
-  const filter = new RegexFilter(denyPatterns);
-  const allowed: FilteredTool[] = [];
+export function applyFilters<T extends FilteredTool>(
+  tools: T[],
+  { allowPatterns, denyPatterns }: FilterPatterns
+): ToolFilterResult<T> {
+  const allowFilter = new RegexFilter(allowPatterns);
+  const denyFilter = new RegexFilter(denyPatterns);
+  const allowed: T[] = [];
   const denied: string[] = [];
   const matchedPatterns = new Set<number>();
 
   for (const tool of tools) {
-    let matched = false;
-    for (let i = 0; i < filter.patterns.length; i++) {
-      if (filter.patterns[i].test(tool.name)) {
+    let matchedDeny = false;
+    for (let i = 0; i < denyFilter.patterns.length; i++) {
+      if (denyFilter.patterns[i].test(tool.name)) {
         matchedPatterns.add(i);
-        matched = true;
+        matchedDeny = true;
       }
     }
 
-    if (matched) {
+    if (matchedDeny) {
       denied.push(tool.name);
-    } else {
+    }
+
+    if (!matchedDeny && (allowPatterns.length === 0 || allowFilter.matches(tool.name))) {
       allowed.push(tool);
     }
   }

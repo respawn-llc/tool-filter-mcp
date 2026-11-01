@@ -32,6 +32,7 @@ describe('Stdio transport integration', () => {
       mode: 'stdio',
       upstreamCommand: 'node',
       upstreamArgs: ['server.js'],
+      allowPatterns: [],
       denyPatterns: ['dangerous_.*'],
       timeouts: {
         connection: 30000,
@@ -59,6 +60,7 @@ describe('Stdio transport integration', () => {
       mode: 'stdio',
       upstreamCommand: 'npx',
       upstreamArgs: ['some-mcp-server'],
+      allowPatterns: [],
       denyPatterns: ['^get_.*'],
       timeouts: {
         connection: 30000,
@@ -74,11 +76,34 @@ describe('Stdio transport integration', () => {
     const tools = proxy.getCachedTools();
 
     // Verify tools starting with 'get_' are filtered out
-    const hasGetTools = tools.some(tool => tool.name.startsWith('get_'));
+    const hasGetTools = tools.some((tool) => tool.name.startsWith('get_'));
     expect(hasGetTools).toBe(false);
 
     // Verify other tools are still present
     expect(tools.length).toBeGreaterThan(0);
+
+    proxy.shutdown();
+  });
+
+  it('should apply allow and deny patterns to stdio tools', async () => {
+    const config: StdioProxyConfig = {
+      mode: 'stdio',
+      upstreamCommand: 'npx',
+      upstreamArgs: ['some-mcp-server'],
+      allowPatterns: ['^read_', '^write_'],
+      denyPatterns: ['^write_'],
+      timeouts: {
+        connection: 30000,
+        toolList: 10000,
+      },
+    };
+
+    const proxy = new ProxyOrchestrator(config, createMockServer(sampleTools));
+    await proxy.startup();
+
+    expect(proxy.getCachedTools().map((tool) => tool.name)).toEqual(['read_file']);
+    expect(proxy.isToolAllowed('read_file')).toBe(true);
+    expect(proxy.isToolAllowed('write_file')).toBe(false);
 
     proxy.shutdown();
   });
@@ -88,6 +113,7 @@ describe('Stdio transport integration', () => {
       mode: 'stdio',
       upstreamCommand: 'node',
       upstreamArgs: ['server.js', '--port=3000', '--config=test.json'],
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -114,13 +140,14 @@ describe('Stdio transport integration', () => {
       mode: 'stdio',
       upstreamCommand: 'node',
       upstreamArgs: [],
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
         toolList: 10000,
       },
       // @ts-expect-error headers should not be allowed in stdio config
-      headers: { 'Authorization': 'Bearer token' },
+      headers: { Authorization: 'Bearer token' },
     };
 
     expect(config.mode).toBe('stdio');
@@ -131,11 +158,12 @@ describe('Stdio transport integration', () => {
       mode: 'stdio',
       upstreamCommand: 'node',
       upstreamArgs: ['server.js'],
+      allowPatterns: [],
       denyPatterns: [],
       env: {
-        'API_KEY': 'secret123',
-        'DEBUG': 'true',
-        'PORT': '3000',
+        API_KEY: 'secret123',
+        DEBUG: 'true',
+        PORT: '3000',
       },
       timeouts: {
         connection: 30000,
@@ -150,9 +178,9 @@ describe('Stdio transport integration', () => {
 
     expect(proxy.isReady()).toBe(true);
     expect(config.env).toEqual({
-      'API_KEY': 'secret123',
-      'DEBUG': 'true',
-      'PORT': '3000',
+      API_KEY: 'secret123',
+      DEBUG: 'true',
+      PORT: '3000',
     });
 
     proxy.shutdown();

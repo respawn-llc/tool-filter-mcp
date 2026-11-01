@@ -23,8 +23,10 @@ describe('Header pass-through', () => {
 
     serverProcess = spawn('node', [
       cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'Authorization: Bearer test123'
+      '--upstream',
+      'http://localhost:64342/sse',
+      '--header',
+      'Authorization: Bearer test123',
     ]);
 
     let stderr = '';
@@ -56,9 +58,12 @@ describe('Header pass-through', () => {
 
     serverProcess = spawn('node', [
       cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'Authorization: Bearer test123',
-      '--header', 'X-Custom: value'
+      '--upstream',
+      'http://localhost:64342/sse',
+      '--header',
+      'Authorization: Bearer test123',
+      '--header',
+      'X-Custom: value',
     ]);
 
     let stderr = '';
@@ -66,9 +71,11 @@ describe('Header pass-through', () => {
     serverProcess.stderr?.on('data', (data) => {
       stderr += data.toString();
 
-      if (stderr.includes('Custom headers:') &&
-          stderr.includes('Authorization') &&
-          stderr.includes('X-Custom')) {
+      if (
+        stderr.includes('Custom headers:') &&
+        stderr.includes('Authorization') &&
+        stderr.includes('X-Custom')
+      ) {
         serverProcess?.kill();
         expect(stderr).toContain('Authorization');
         expect(stderr).toContain('X-Custom');
@@ -92,13 +99,19 @@ describe('Header pass-through', () => {
     const cliPath = join(process.cwd(), 'dist', 'index.js');
     process.env.TEST_TOKEN = 'secret123';
 
-    serverProcess = spawn('node', [
-      cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'Authorization: Bearer $TEST_TOKEN'
-    ], {
-      env: process.env
-    });
+    serverProcess = spawn(
+      'node',
+      [
+        cliPath,
+        '--upstream',
+        'http://localhost:64342/sse',
+        '--header',
+        'Authorization: Bearer $TEST_TOKEN',
+      ],
+      {
+        env: process.env,
+      }
+    );
 
     let stderr = '';
 
@@ -129,8 +142,10 @@ describe('Header pass-through', () => {
 
     serverProcess = spawn('node', [
       cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'InvalidHeaderNoColon'
+      '--upstream',
+      'http://localhost:64342/sse',
+      '--header',
+      'InvalidHeaderNoColon',
     ]);
 
     let stderr = '';
@@ -158,8 +173,10 @@ describe('Header pass-through', () => {
 
     serverProcess = spawn('node', [
       cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'Invalid Header: value'
+      '--upstream',
+      'http://localhost:64342/sse',
+      '--header',
+      'Invalid Header: value',
     ]);
 
     let stderr = '';
@@ -187,8 +204,10 @@ describe('Header pass-through', () => {
 
     serverProcess = spawn('node', [
       cliPath,
-      '--upstream', 'http://localhost:64342/sse',
-      '--header', 'X-Empty:'
+      '--upstream',
+      'http://localhost:64342/sse',
+      '--header',
+      'X-Empty:',
     ]);
 
     let stderr = '';

@@ -13,15 +13,12 @@ export class ProxyOrchestrator {
     this.config = config;
 
     // Determine identifier string based on config mode
-    const identifier = config.mode === 'http'
-      ? config.upstreamUrl
-      : formatCommandDisplay(config.upstreamCommand, config.upstreamArgs);
+    const identifier =
+      config.mode === 'http'
+        ? config.upstreamUrl
+        : formatCommandDisplay(config.upstreamCommand, config.upstreamArgs);
 
-    this.upstreamConnection = new UpstreamConnection(
-      identifier,
-      client,
-      config.timeouts
-    );
+    this.upstreamConnection = new UpstreamConnection(identifier, client, config.timeouts);
   }
 
   async startup(): Promise<void> {
@@ -29,7 +26,10 @@ export class ProxyOrchestrator {
 
     const tools = await this.upstreamConnection.fetchTools();
 
-    const filterResult = applyFilters(tools, this.config.denyPatterns);
+    const filterResult = applyFilters(tools, {
+      allowPatterns: this.config.allowPatterns,
+      denyPatterns: this.config.denyPatterns,
+    });
 
     this.filteredTools = filterResult.allowed;
     this.ready = true;

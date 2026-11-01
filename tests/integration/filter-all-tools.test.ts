@@ -11,6 +11,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*'],
       timeouts: {
         connection: 30000,
@@ -30,6 +31,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*'],
       timeouts: {
         connection: 30000,
@@ -51,6 +53,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*'],
       timeouts: {
         connection: 30000,
@@ -72,6 +75,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*_file$', '.*_dir$', '.*_env$', '.*_database$'],
       timeouts: {
         connection: 30000,
@@ -91,6 +95,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*'],
       timeouts: {
         connection: 30000,
@@ -110,6 +115,7 @@ describe('Filter All Tools', () => {
     const config: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,

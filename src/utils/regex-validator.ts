@@ -13,7 +13,7 @@ export function validateRegexPattern(pattern: string): RegexValidationResult {
     return {
       valid: false,
       safe: false,
-      error: `Invalid regex pattern in deny list: ${pattern}\nPattern must be valid JavaScript regex`,
+      error: `Invalid regex pattern: ${pattern}\nPattern must be valid JavaScript regex`,
     };
   }
 

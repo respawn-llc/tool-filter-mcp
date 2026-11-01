@@ -18,16 +18,14 @@ export class MCPServer {
   async handleListTools(): Promise<{ tools: Tool[] }> {
     const tools = this.proxy.getCachedTools();
     return {
-      tools: tools.map(
-        (t): Tool => ({
-          name: t.name,
-          description: t.description,
-          inputSchema: {
-            type: 'object',
-            ...t.inputSchema,
-          },
-        })
-      ),
+      tools: tools.map((t): Tool => ({
+        name: t.name,
+        description: t.description,
+        inputSchema: {
+          type: 'object',
+          ...t.inputSchema,
+        },
+      })),
     };
   }
 
@@ -57,28 +55,23 @@ export class MCPServer {
 }
 
 export async function createMCPServer(proxy: ProxyOrchestrator): Promise<Server> {
-  const server = new Server(
-    implementationInfo,
-    {
-      capabilities: {
-        tools: {},
-      },
-    }
-  );
+  const server = new Server(implementationInfo, {
+    capabilities: {
+      tools: {},
+    },
+  });
 
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     const tools = proxy.getCachedTools();
     return {
-      tools: tools.map(
-        (t): Tool => ({
-          name: t.name,
-          description: t.description,
-          inputSchema: {
-            type: 'object',
-            ...t.inputSchema,
-          },
-        })
-      ),
+      tools: tools.map((t): Tool => ({
+        name: t.name,
+        description: t.description,
+        inputSchema: {
+          type: 'object',
+          ...t.inputSchema,
+        },
+      })),
     };
   });
 

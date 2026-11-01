@@ -3,10 +3,18 @@ import type { CLIArgs } from './cli-args.js';
 import { parseHeaders } from './utils/header-parser.js';
 import { parseEnvVars } from './utils/env-parser.js';
 
-export function createProxyConfig(args: CLIArgs): ProxyConfig {
-  const denyPatterns = args.deny
-    ? args.deny.split(',').map((p) => p.trim()).filter((p) => p.length > 0)
+function parsePatternList(patterns?: string): string[] {
+  return patterns
+    ? patterns
+        .split(',')
+        .map((pattern) => pattern.trim())
+        .filter((pattern) => pattern.length > 0)
     : [];
+}
+
+export function createProxyConfig(args: CLIArgs): ProxyConfig {
+  const allowPatterns = parsePatternList(args.allow);
+  const denyPatterns = parsePatternList(args.deny);
 
   const timeouts = {
     connection: 30000,
@@ -14,13 +22,12 @@ export function createProxyConfig(args: CLIArgs): ProxyConfig {
   };
 
   if (args.upstream) {
-    const headers = args.header && args.header.length > 0
-      ? parseHeaders(args.header)
-      : undefined;
+    const headers = args.header && args.header.length > 0 ? parseHeaders(args.header) : undefined;
 
     return {
       mode: 'http',
       upstreamUrl: args.upstream,
+      allowPatterns,
       denyPatterns,
       headers,
       timeouts,
@@ -29,14 +36,13 @@ export function createProxyConfig(args: CLIArgs): ProxyConfig {
 
   if (args.upstreamStdio) {
     const [upstreamCommand, ...upstreamArgs] = args.positionals;
-    const env = args.env && args.env.length > 0
-      ? parseEnvVars(args.env)
-      : undefined;
+    const env = args.env && args.env.length > 0 ? parseEnvVars(args.env) : undefined;
 
     return {
       mode: 'stdio',
       upstreamCommand,
       upstreamArgs,
+      allowPatterns,
       denyPatterns,
       env,
       timeouts,

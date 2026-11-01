@@ -84,9 +84,7 @@ describe('formatToolsList', () => {
     });
 
     it('should handle tools without descriptions', () => {
-      const tools = [
-        { name: 'tool_no_desc', inputSchema: {} },
-      ];
+      const tools = [{ name: 'tool_no_desc', inputSchema: {} }];
       const result = formatToolsList(tools, 'table');
 
       expect(result).toContain('tool_no_desc');
@@ -168,7 +166,8 @@ describe('formatToolsList', () => {
       const tools = [
         {
           name: 'tool',
-          description: 'This is a very long description that goes on and on and on and contains a lot of text that might wrap in a terminal window',
+          description:
+            'This is a very long description that goes on and on and on and contains a lot of text that might wrap in a terminal window',
           inputSchema: {},
         },
       ];

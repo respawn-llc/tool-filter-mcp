@@ -1,8 +1,6 @@
-# tool-filter-mcp
-
 [![npm version](https://badge.fury.io/js/@respawn-app%2Ftool-filter-mcp.svg)](https://www.npmjs.com/package/@respawn-app/tool-filter-mcp)
 
-MCP proxy server that filters tools from upstream MCP servers via regex-based deny list.
+MCP proxy server that filters tools from upstream MCP servers via regex-based allow and deny lists.
 
 #### Maintained: ✅ Yes (Winter 2027)
 
@@ -73,6 +71,25 @@ npx @respawn-app/tool-filter-mcp \
   --upstream http://localhost:3000/sse \
   --deny "get_file_text,create_new_file,replace_text"
 ```
+
+### Allow specific tools
+
+Use `--allow` (`-a`) with comma-separated regex patterns to expose only matching tools. When both filters are set, deny takes precedence. These rules also apply to `--list-tools`.
+
+```bash
+npx @respawn-app/tool-filter-mcp \
+  --upstream http://localhost:3000/sse \
+  --allow "^read_file$,^search_code$" \
+  --list-tools --format=names
+
+npx @respawn-app/tool-filter-mcp \
+  --upstream-stdio \
+  --allow "^read_.*,^search_.*" \
+  --deny "^read_secret$" \
+  -- npx my-mcp-server
+```
+
+Matching is case-sensitive and can match part of a name. Use `^` and `$` to match a whole name. Blank comma-separated entries are ignored. An omitted or blank allow list leaves tools unrestricted by allow. A nonempty allow list that matches no tools exposes no tools. Invalid regex patterns and patterns rejected by the regex-safety check cause an error in proxy and list modes.
 
 ### With Authentication Headers
 
@@ -287,6 +304,7 @@ To start the proxy server, you must specify exactly one of:
 
 ### Common Options
 
+- `--allow <patterns>`, `-a <patterns>`: Comma-separated regex patterns for tools to allow
 - `--deny <patterns>`: Comma-separated regex patterns for tools to filter
 
 ### HTTP/SSE Mode Options
@@ -312,7 +330,7 @@ Only applicable with `--upstream-stdio`:
 
 ## Requirements
 
-- Node.js >= 20.0.0
+- Node.js >= 26.0.0
 - Upstream MCP server with:
   - SSE or Streamable HTTP transport (for `--upstream`), OR
   - stdio transport (for `--upstream-stdio`)

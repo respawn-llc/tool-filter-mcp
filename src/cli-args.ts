@@ -4,6 +4,7 @@ import type { ToolListFormat } from './utils/tool-list-formatter.js';
 export interface CLIArgs {
   upstream?: string;
   upstreamStdio?: boolean;
+  allow?: string;
   deny?: string;
   header?: string[];
   env?: string[];
@@ -21,6 +22,10 @@ export function parseCLIArgs(): CLIArgs {
       },
       'upstream-stdio': {
         type: 'boolean',
+      },
+      allow: {
+        type: 'string',
+        short: 'a',
       },
       deny: {
         type: 'string',
@@ -50,6 +55,7 @@ export function parseCLIArgs(): CLIArgs {
 
   const upstream = values.upstream;
   const upstreamStdio = values['upstream-stdio'];
+  const allow = values.allow;
   const deny = values.deny;
   const header = values.header;
   const env = values.env;
@@ -58,8 +64,12 @@ export function parseCLIArgs(): CLIArgs {
 
   if (!upstream && !upstreamStdio) {
     console.error('Error: Either --upstream or --upstream-stdio is required');
-    console.error('Usage (HTTP): tool-filter-mcp --upstream <url> [--deny <patterns>] [--header <name:value>]');
-    console.error('Usage (stdio): tool-filter-mcp --upstream-stdio [--deny <patterns>] [--env <KEY=value>] -- <command> [args...]');
+    console.error(
+      'Usage (HTTP): tool-filter-mcp --upstream <url> [--allow <patterns>] [--deny <patterns>] [--header <name:value>]'
+    );
+    console.error(
+      'Usage (stdio): tool-filter-mcp --upstream-stdio [--allow <patterns>] [--deny <patterns>] [--env <KEY=value>] -- <command> [args...]'
+    );
     process.exit(1);
   }
 
@@ -86,13 +96,19 @@ export function parseCLIArgs(): CLIArgs {
   }
 
   if (positionals.length > 0) {
-    console.error('Warning: Positional arguments are only applicable with --upstream-stdio and will be ignored');
+    console.error(
+      'Warning: Positional arguments are only applicable with --upstream-stdio and will be ignored'
+    );
   }
 
   if (upstreamStdio && positionals.length === 0) {
     console.error('Error: --upstream-stdio requires a command and arguments after --');
-    console.error('Usage: tool-filter-mcp --upstream-stdio [--deny <patterns>] [--env <KEY=value>] -- <command> [args...]');
-    console.error('Example: tool-filter-mcp --upstream-stdio --env API_KEY=secret -- uvx --from git+https://... zen-mcp-server');
+    console.error(
+      'Usage: tool-filter-mcp --upstream-stdio [--allow <patterns>] [--deny <patterns>] [--env <KEY=value>] -- <command> [args...]'
+    );
+    console.error(
+      'Example: tool-filter-mcp --upstream-stdio --env API_KEY=secret -- uvx --from git+https://... zen-mcp-server'
+    );
     process.exit(1);
   }
 
@@ -107,6 +123,7 @@ export function parseCLIArgs(): CLIArgs {
   return {
     upstream,
     upstreamStdio,
+    allow,
     deny,
     header,
     env,

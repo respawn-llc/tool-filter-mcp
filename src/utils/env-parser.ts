@@ -4,7 +4,9 @@ export function parseEnvVars(envArray: string[]): Record<string, string> {
   for (const envStr of envArray) {
     const separatorIndex = envStr.indexOf('=');
     if (separatorIndex === -1) {
-      console.error(`Error: Invalid environment variable format: "${envStr}". Expected KEY=value format.`);
+      console.error(
+        `Error: Invalid environment variable format: "${envStr}". Expected KEY=value format.`
+      );
       process.exit(1);
     }
 
@@ -12,7 +14,9 @@ export function parseEnvVars(envArray: string[]): Record<string, string> {
     const value = envStr.slice(separatorIndex + 1);
 
     if (key.length === 0) {
-      console.error(`Warning: Invalid environment variable format: "${envStr}". Key cannot be empty.`);
+      console.error(
+        `Warning: Invalid environment variable format: "${envStr}". Key cannot be empty.`
+      );
       continue;
     }
 

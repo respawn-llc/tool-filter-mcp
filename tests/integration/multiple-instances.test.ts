@@ -12,6 +12,7 @@ describe('Multiple Proxy Instances', () => {
     const config1: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['.*_file$'],
       timeouts: {
         connection: 30000,
@@ -22,6 +23,7 @@ describe('Multiple Proxy Instances', () => {
     const config2: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3001',
+      allowPatterns: [],
       denyPatterns: ['.*_database$'],
       timeouts: {
         connection: 30000,
@@ -60,6 +62,7 @@ describe('Multiple Proxy Instances', () => {
     const config1: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: [],
       timeouts: {
         connection: 30000,
@@ -70,6 +73,7 @@ describe('Multiple Proxy Instances', () => {
     const config2: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3001',
+      allowPatterns: [],
       denyPatterns: ['.*'],
       timeouts: {
         connection: 30000,
@@ -94,6 +98,7 @@ describe('Multiple Proxy Instances', () => {
     const config1: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3000',
+      allowPatterns: [],
       denyPatterns: ['read_file'],
       timeouts: {
         connection: 30000,
@@ -104,6 +109,7 @@ describe('Multiple Proxy Instances', () => {
     const config2: HttpProxyConfig = {
       mode: 'http',
       upstreamUrl: 'http://localhost:3001',
+      allowPatterns: [],
       denyPatterns: ['write_file'],
       timeouts: {
         connection: 30000,
